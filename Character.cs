@@ -13,30 +13,40 @@ namespace monoGame_Project
         public int shield;
         public int maxShield;
         public int damage;
+        public Vector2 StartPosition;
+        public Vector2 CharacterPosition;
         public Texture2D CharacterTexture;
         public bool Key;
 
-        public Character(int maxHP, int HP, int damage, int shield, int maxShield, Texture2D CharacterTexture)
+
+
+
+        public Character(int maxHP, int HP, int damage, int shield, int maxShield, Vector2 StartPosition, Vector2 CharacterPosition, Texture2D CharacterTexture)
         {
             this.level = 1;
-            this.maxHP = 20 + D6(3);
+            this.maxHP = 20000 + D6(3);
             this.HP = maxHP;
             this.damage = D6(2);
             this.maxShield = 5 + D6(1);
             this.shield = maxShield;
+            this.StartPosition = StartPosition;
+
             this.CharacterTexture = CharacterTexture;
         }
         public Character(Texture2D CharacterTexture)
         {
-            this.maxHP = 20 + D6(3);
+            this.maxHP = 20000 + D6(3);
             this.HP = maxHP;
             this.damage = D6(2);
             this.maxShield = 5 + D6(1);
             this.shield = maxShield;
+            this.StartPosition = StartPosition;
+
             this.CharacterTexture = CharacterTexture;
         }
-        public Character()
+        public Character(Vector2 StartPosition)
         {
+            this.StartPosition = StartPosition;
         }
         //random (1-6) * a bekért számmal
         public int D6(int num)
@@ -70,21 +80,15 @@ namespace monoGame_Project
                 if (enemy.shield > 0)
                     tempDamage = 0;
                 else
-                {
                     tempDamage = attackDamage - tempShield;
-                    enemy.shield = 0;
-                }
             }
 
             if (tempDamage > 0)
             {
                 enemy.HP = enemy.HP - (tempDamage);
-                if (enemy.HP < 0)
-                    enemy.HP = 0;
             }
         }
-        
-        public void Attack(int attackDamage, Final_Boss enemy)
+        public void Attack(int attackDamage, Boss enemy)
         {
             int tempShield = enemy.shield;
             int tempDamage = attackDamage;
@@ -94,73 +98,58 @@ namespace monoGame_Project
                 if (enemy.shield > 0)
                     tempDamage = 0;
                 else
-                {
                     tempDamage = attackDamage - tempShield;
-                    enemy.shield = 0;
-                }
             }
 
             if (tempDamage > 0)
             {
                 enemy.HP = enemy.HP - (tempDamage);
-                if (enemy.HP < 0)
-                    enemy.HP = 0;
             }
         }
-
-        public void Attack(int attackDamage, Boss boss)
-        {
-            int tempShield = boss.shield;
-            int tempDamage = attackDamage;
-            if (boss.shield > 0)
-            {
-                boss.shield -= attackDamage;
-                if (boss.shield > 0)
-                    tempDamage = 0;
-                else
-                {
-                    tempDamage = attackDamage - tempShield;
-                    boss.shield = 0;
-                }
-            }
-
-            if (tempDamage > 0)
-            {
-                boss.HP = boss.HP - (tempDamage);
-                if (boss.HP < 0)
-                    boss.HP = 0;
-            }
-        }
-  
         public void Regeneration()
         {
             Random rnd = new Random();
             int chance = (rnd.Next(0, 10));
             if (chance <= 4)
             {
-                this.HP += Convert.ToInt32(maxHP * 0.25);
+                this.HP += maxHP / 10;
+                this.shield += maxShield / 10;
                 if (maxHP < HP)
                 {
                     HP = maxHP;
+                }
+                if (maxShield < shield)
+                {
+                    shield = maxShield;
                 }
             }
             else if (chance > 4 || chance <= 8)
             {
-                this.HP += Convert.ToInt32(maxHP * 0.45);
+                this.HP += maxHP / 3;
+                this.shield += maxShield / 3;
                 if (maxHP < HP)
                 {
                     HP = maxHP;
+                }
+                if (maxShield < shield)
+                {
+                    shield = maxShield;
                 }
             }
             else
             {
-                this.HP += Convert.ToInt32(maxHP * 0.65);
+                this.HP += maxHP / 2;
+                this.maxHP += maxHP / 2;
                 if (maxHP < HP)
                 {
                     HP = maxHP;
                 }
-
+                if (maxShield < shield)
+                {
+                    shield = maxShield;
+                }
             }
         }
     }
 }
+

@@ -15,7 +15,8 @@ namespace monoGame_Project
 {
     internal class level1 : GameScreen
     {
-
+        List<SoundEffect> SoundEffects= new List<SoundEffect>();
+        public Song level;
         private new Game1 Game => (Game1)base.Game;
         public level1(Game1 Game) : base(Game)
         {
@@ -24,24 +25,37 @@ namespace monoGame_Project
         {
             Game.player.Key = false;
             Game.generateTerrain = true;
-            Game.playerXY[0] = 2;
-            Game.playerXY[1] = 2;
+            Game.playerPosition = new Vector2(160f, 160f);
             Game.conditionsMet = false;
             Game.keyFlag = false;
+            this.level = Content.Load<Song>("level1");
+            SoundEffects.Add(Content.Load<SoundEffect>("door01"));
+            SoundEffects.Add(Content.Load<SoundEffect>("door02"));
+            MediaPlayer.Play(level);
             Game.Start = true;
-            Game.bossFlag = false;
-            Game.stepCount = 0;
         }
 
+        public int alma = 0;
+        public int barack = 0;
         public override void Update(GameTime gameTime)
         {
-            if (Game.player.Key && Game.bossFlag)
+            if (Game.player.Key)
             {
                 Game.conditionsMet = true;
+                if (alma==0)
+                {
+                    SoundEffects[0].Play(0.1f, 0, 0);
+                    alma++;
+                }
             }
             if (Game.playerXY[0] == Game.doorXY[0] && Game.playerXY[1] == Game.doorXY[1] && Game.conditionsMet)
             {
                 Game.LoadLevel2();
+                if (barack == 0)
+                {
+                    SoundEffects[1].Play();
+                    barack++;
+                }
             }
         }
         public override void Draw(GameTime gameTime)

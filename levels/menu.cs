@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using MonoGame.Extended.Screens;
 
 namespace monoGame_Project
@@ -23,6 +24,7 @@ namespace monoGame_Project
         }
         public override void LoadContent()
         {
+
             _graphics = Game._graphics;
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             MainTitle = Content.Load<Texture2D>("main_title");
@@ -32,6 +34,8 @@ namespace monoGame_Project
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
             {
                 Game.LoadLevel1();
+                MediaPlayer.Pause();
+
             }
         }
         public override void Draw(GameTime gameTime)

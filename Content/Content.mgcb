@@ -13,6 +13,12 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin armourBreak.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:armourBreak.mp3
+
 #begin backGround.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -24,6 +30,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:backGround.png
+
+#begin credits.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:credits.mp3
 
 #begin dead.png
 /importer:TextureImporter
@@ -49,6 +61,18 @@
 /processorParam:TextureFormat=Color
 /build:door.png
 
+#begin door01.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:door01.mp3
+
+#begin door02.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:door02.wav
+
 #begin doorLocked.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -73,6 +97,12 @@
 /processorParam:TextureFormat=Color
 /build:enemy.png
 
+#begin enemyDamaged.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:enemyDamaged.mp3
+
 #begin File.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -92,6 +122,12 @@
 /processorParam:TextureFormat=Color
 /build:final_boss.png
 
+#begin finalboss.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:finalboss.mp3
+
 #begin goblin.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -103,6 +139,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:goblin.png
+
+#begin heal.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:heal.mp3
 
 #begin hero.png
 /importer:TextureImporter
@@ -164,29 +206,11 @@
 /processorParam:TextureFormat=Color
 /build:hero5.png
 
-#begin KeyFalse.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:KeyFalse.png
-
-#begin KeyTrue.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:KeyTrue.png
+#begin level1.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:level1.mp3
 
 #begin level10.png
 /importer:TextureImporter
@@ -199,6 +223,73 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:level10.png
+
+#begin level2.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:level2.mp3
+
+#begin level3.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:level3.mp3
+
+#begin level4.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:level4.mp3
+
+#begin level5.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:level5.mp3
+
+#begin level6.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:level6.mp3
+
+#begin level7.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:level7.mp3
+
+#begin level8.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:level8.mp3
+
+#begin level9.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:level9.mp3
+
+#begin levelUp.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:levelUp.mp3
+
+#begin lowHP.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:lowHP.mp3
+
+#begin Lv.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Lv.spritefont
 
 #begin main_title.png
 /importer:TextureImporter
@@ -217,6 +308,12 @@
 /processor:SongProcessor
 /processorParam:Quality=Best
 /build:main.mp3
+
+#begin Moving.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Moving.mp3
 
 #begin obstacle.png
 /importer:TextureImporter
@@ -259,4 +356,23 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:pstep.mp3
+
+#begin statfont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:statfont.spritefont
+
+#begin stats.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:stats.png
 

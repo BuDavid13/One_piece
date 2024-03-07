@@ -16,25 +16,19 @@ namespace monoGame_Project
     internal class level10 : GameScreen
     {
         private new Game1 Game => (Game1)base.Game;
+        public Song level;
         public level10(Game1 Game) : base(Game)
         {
         }
         public override void LoadContent()
         {
             Game.generateTerrain = true;
-            Game.playerXY[0] = 2;
-            Game.playerXY[1] = 2;
+            this.level = Content.Load<Song>("finalboss");
+            Game.playerPosition = new Vector2(160f, 160f);
             Game.backGround = Game.Content.Load<Texture2D>("level10");
             Game.conditionsMet = false;
-            Game.bossFlag = false;
+            MediaPlayer.Play(level);
             Game.keyFlag = false;
-            Game.player.shield = Game.player.maxShield;
-            Game.Start = true;
-            Game.stepCount = 0;
-            Game.finalboss = new Final_Boss(Game.FinalBoss_Texture, Game.player);
-            Game.bossFlag = false;
-            Game.boss.position[0] = 0;
-            Game.boss.position[1] = 0;
         }
         public override void Update(GameTime gameTime)
         {
@@ -46,20 +40,7 @@ namespace monoGame_Project
         }
         public override void Draw(GameTime gameTime)
         {
-            Game._spriteBatch.Begin();
-            Game._spriteBatch.Draw(
-                Game.finalboss.CharacterTexture,
-                new Vector2(Game._graphics.PreferredBackBufferWidth / 12 * Game.finalboss.position[0],
-                Game._graphics.PreferredBackBufferHeight / 12 * Game.finalboss.position[3]),
-                null,
-                Color.White,
-                0f,
-                new Vector2(Game._graphics.PreferredBackBufferWidth / 12, Game._graphics.PreferredBackBufferHeight / 12),
-                Vector2.One,
-                SpriteEffects.None,
-                0f
-                );
-            Game._spriteBatch.End();
+
         }
 
     }

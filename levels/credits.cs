@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Media;
+using System.Reflection.Emit;
 
 namespace monoGame_Project
 {
@@ -14,6 +16,7 @@ namespace monoGame_Project
         public GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
         SpriteFont font;
+        public Song final;
         string creditsText = "                                    Fin.\n\n\n                                Made by:\n\n\nMozgas meg palyageneralas: David\n\nHang: Patrik\n\nGoblinok (Patrikok) es karakter es harc: Istvan";
         Vector2 textPos;
         float speed;
@@ -24,11 +27,13 @@ namespace monoGame_Project
         public override void LoadContent()
         {
             font = Content.Load<SpriteFont>("File");
+            this.final = Content.Load<Song>("credits");
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _graphics = Game._graphics;
             Game.Start = false;
             textPos = new Vector2(_graphics.PreferredBackBufferWidth / 2 - Convert.ToInt32(font.MeasureString(creditsText).X) / 2, 1000f);
             speed = 100f;
+            MediaPlayer.Play(final);
         }
         public override void Update(GameTime gameTime)
         {

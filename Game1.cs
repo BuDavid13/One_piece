@@ -12,16 +12,13 @@ using System.Threading;
 using MonoGame.Extended;
 using monoGame_Project.levels;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using static System.Formats.Asn1.AsnWriter;
-using System.Xml;
 
 namespace monoGame_Project
 {
     public class Game1 : Game
     {
+        public Vector2 playerPosition;
         public Character player;
-        public Final_Boss finalboss;
         public int level = 0;
         public Texture2D obstacleTexture;
         public Texture2D heroTexture;
@@ -30,13 +27,10 @@ namespace monoGame_Project
         public Texture2D backGround;
         public Texture2D door;
         public Texture2D doorLocked;
-        public Texture2D keyFalse;
-        public Texture2D keyTrue;
         public Texture2D pause_menu;
         public Texture2D dead_screen;
-        public Texture2D stat_screen;
         public Texture2D potion;
-        public Texture2D FinalBoss_Texture;
+        public Texture2D stat_screen;
         public Boss boss;
         public Random rnd;
         public List<Enemy> enemyList;
@@ -48,38 +42,28 @@ namespace monoGame_Project
         bool Paused = false;
         bool Dead = false;
         bool IsAlive = false;
-        bool surroundingBossFlage = false;
-        public bool bossFlag = false;
-        public bool bossFlag2 = false; //boss draw
-        public bool level10flag = false;
-        bool level10 = false;
+        bool level10flag = false;
         bool potionFlag;
+        bool bossFlag;
         public bool keyFlag = false;
-        public bool surroundFlag = false;
         public bool generateTerrain = false;
         public bool conditionsMet = false;
         public bool Start = false;
-        public int[,] levelGrid = new int[13, 13];
+        public int[,] levelGrid = new int[12, 12];
         public int[] playerXY = new int[2];
         public int[] doorXY = new int[2] { 1, 1 };
         public int[] potionXY = new int[2];
         int temprnd;
-        public int stepCount;
-        public int finalBossSteps;
-        bool step;
         public GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
         public ScreenManager scrnManager;
-        Song main;
         List<SoundEffect> soundEffects;
-        List<Enemy> surroundingEnemies;
         int goblinFightId;
         public float dieTimer;
-        SpriteFont statFont;
         SpriteFont Lv;
-        SpriteFont GoblinStat;
-        int kills;
-        Boss surroundingBoss;
+        SpriteFont statfont;
+        public Song main;
+
 
         public Game1()
         {
@@ -101,6 +85,7 @@ namespace monoGame_Project
             MainMenu();
         }
 
+        // TODO: CREDITS
         #region LevelLoads
         public void Credits()
         {
@@ -108,7 +93,7 @@ namespace monoGame_Project
         }
         public void MainMenu()
         {
-            scrnManager.LoadScreen(new menu(this), new FadeTransition(GraphicsDevice, Color.Black, 0f));
+            scrnManager.LoadScreen(new menu(this), new FadeTransition(GraphicsDevice, Color.Black, 5f));
             generateTerrain = false;
         }
         public void LoadLevel1()
@@ -157,82 +142,91 @@ namespace monoGame_Project
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            //this.main = Content.Load<Song>("main");
-            //MediaPlayer.Play(main);
-            //MediaPlayer.IsRepeating = true;
-            //MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
             //event hangok
-            soundEffects.Add(Content.Load<SoundEffect>("pstep"));
+            soundEffects.Add(Content.Load<SoundEffect>("Moving"));
+            soundEffects.Add(Content.Load<SoundEffect>("LowHP"));
+            soundEffects.Add(Content.Load<SoundEffect>("enemyDamaged"));
+            soundEffects.Add(Content.Load<SoundEffect>("levelUp"));
+            soundEffects.Add(Content.Load<SoundEffect>("heal"));
+            soundEffects.Add(Content.Load<SoundEffect>("armourBreak"));
             obstacleTexture = Content.Load<Texture2D>("obstacle");
             pause_menu = Content.Load<Texture2D>("pause_menu");
             dead_screen = Content.Load<Texture2D>("dead");
             stat_screen = Content.Load<Texture2D>("stats");
             player = new Character(Content.Load<Texture2D>("hero"));
-            FinalBoss_Texture = Content.Load<Texture2D>("final_boss");
             Lv = Content.Load<SpriteFont>("Lv");
-            statFont = Content.Load<SpriteFont>("statfont");
-            GoblinStat = Content.Load<SpriteFont>("GoblinStat");
+            statfont = Content.Load<SpriteFont>("statfont");
             backGround = Content.Load<Texture2D>("backGround");
             door = Content.Load<Texture2D>("door");
+            playerPosition = new Vector2(160f, 160f);
             doorLocked = Content.Load<Texture2D>("doorLocked");
-            keyFalse = Content.Load<Texture2D>("KeyFalse");
-            keyTrue = Content.Load<Texture2D>("KeyTrue");
             goblin = Content.Load<Texture2D>("goblin");
             potion = Content.Load<Texture2D>("potion");
             bossTexture = Content.Load<Texture2D>("enemy");
             rnd = new Random();
-            level10flag = false;
-            level10 = false;
-            bossFlag = false;
             enemyList = new List<Enemy>();
-            surroundingBoss = boss;
-            Paused = false;
-            pauseFlag = false;
             Dead = false;
             IsAlive = false;
-            bossFlag = false;
-            bossFlag2 = false;
             dieTimer = 0f;
             keyFlag = false;
             player.Key = false;
-            kills = 0;
-            stepCount = 0;
-            level = 0;
-            step = false;
-            playerXY[0] = 2;
-            playerXY[1] = 2;
-
+            level = 1;
+            this.main = Content.Load<Song>("main");
+            MediaPlayer.Play(main);
+            MediaPlayer.Volume -= 0.8f;
         }
-        //főcím dal
-        //void MediaPlayer_MediaStateChanged(object sender, System.EventArgs e)
-        //{
-        //    // 0.0f is silent, 1.0f is full volume
-        //    MediaPlayer.Volume -= 0.5f;
-        //    MediaPlayer.Play(main);
-        //}
 
         public float time1 = 0f;
         public float time2 = 0f;
         public float time3 = 0f;
         public float time4 = 0f;
+        public int alma = 0;
+        public int Körte = 0;
+        public int szőlő = 0;
+        public int szilva = 0;
         protected override void Update(GameTime gameTime)
         {
             switch (player.level)
             {
                 case 10:
                     player.CharacterTexture = Content.Load<Texture2D>("hero2");
+                    if (alma==0)
+                    {
+                    soundEffects[3].Play();
+                        alma++;
+                    }
                     break;
                 case 20:
                     player.CharacterTexture = Content.Load<Texture2D>("hero3");
+                    if (Körte == 0)
+                    {
+                        soundEffects[3].Play();
+                        Körte++;
+                    }
+
                     break;
                 case 30:
                     player.CharacterTexture = Content.Load<Texture2D>("hero4");
+                    if (szilva == 0)
+                    {
+                        soundEffects[3].Play();
+                        szilva++;
+                    }
+
                     break;
                 case 40:
                     player.CharacterTexture = Content.Load<Texture2D>("hero5");
+                    if (szőlő == 0)
+                    {
+                        soundEffects[3].Play();
+                        szőlő++;
+                    }
+
                     break;
             }
 
+            playerXY[0] = Convert.ToInt32(playerPosition.X / 80);
+            playerXY[1] = Convert.ToInt32(playerPosition.Y / 80);
             // TODO: MAIN MENU
             if (player.HP <= 0)
             {
@@ -253,7 +247,6 @@ namespace monoGame_Project
 
             }
 
-            var kstate = Keyboard.GetState();
             if (Dead == false)
             {
 
@@ -280,497 +273,228 @@ namespace monoGame_Project
                         pauseFlag = false;
                     }
                 }
-                    if (Paused)
+                
+
+
+                if (!Paused)
+                {
+                    var kstate = Keyboard.GetState();
+
+                    if (kstate.IsKeyDown(Keys.F))
                     {
-                        if (kstate.IsKeyDown(Keys.R))
+                        if (level10flag)
                         {
-                            this.Initialize();
-                            Dead = false;
-                            IsAlive = false;
-                            Start = false;
-                            Paused = false;
-                            dieTimer = 0;
-                        }
-                        if (kstate.IsKeyDown(Keys.Space))
-                        {
-                            Exit();
+                            LoadLevel10();
+                            level10flag = false;
                         }
                     }
 
-                    if (!Paused)
+
+
+                    #region MOVEMENT
+                    #region W KEY
+                    if (kstate.IsKeyDown(Keys.W) || kstate.IsKeyDown(Keys.Up))
                     {
-
-                        if (kstate.IsKeyDown(Keys.F))
+                        time1 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                        if (!flag1)
                         {
-                            if (level10)
+                            //FALAK
+                            if (levelGrid[Convert.ToInt32(playerPosition.X / 80) - 1,
+                                Convert.ToInt32((playerPosition.Y - 80) / 80) - 1] != 1) // COLLISION
                             {
-                                level10 = false;
-                                LoadLevel10();
-                            level10flag = true;
-                            }
-                        }
-
-
-                        surroundingEnemies = Surrounding(enemyList, playerXY);
-
-                    if (Start && !(playerXY[0] == doorXY[0] && playerXY[1] == doorXY[1] && conditionsMet))
-                    {
-                        #region MOVEMENT
-                        #region W KEY
-                        if (kstate.IsKeyDown(Keys.W) || kstate.IsKeyDown(Keys.Up))
-                        {
-                            time1 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                            if (!flag1)
-                            {
-                                //FALAK
-                                if (levelGrid[playerXY[0], playerXY[1] - 1] != 1) // COLLISION
+                                //GOBLIN
+                                if (!enemyList.Exists(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] - 1)
+                                    && !(boss.position[0] == playerXY[0] && boss.position[1] == playerXY[1] - 1))
                                 {
-                                    //GOBLIN
-                                    if (!enemyList.Exists(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] - 1)
-                                        && !(boss.position[0] == playerXY[0] && boss.position[1] == playerXY[1] - 1))
-                                        {
-                                        if (finalboss == null)
-                                        {
-                                            stepCount++;
-                                            if (stepCount == 5 && enemyList.Count > 2)
-                                            {
-                                                if (player.HP + Convert.ToInt32(player.maxHP * 0.05f) > player.maxHP)
-                                                {
-                                                    player.HP = player.maxHP;
-                                                    stepCount = 0;
-                                                }
-                                                else
-                                                {
-                                                    player.HP += Convert.ToInt32(player.maxHP * 0.05f);
-                                                    stepCount = 0;
-                                                }
-                                            }
-                                            playerXY[1] -= 1;
-                                            flag1 = true; // set when changing value
-                                            if (step)
-                                            {
-                                                foreach (var item in enemyList)
-                                                {
-                                                    item.Advance(playerXY, levelGrid, enemyList, item, boss);
-                                                }
-                                                step = false;
-                                            }
-                                            else
-                                            {
-                                                step = true;
-                                            }
-                                        }
-                                        else if (finalboss != null)
-                                        {
-                                            stepCount++;
-                                            if (!((playerXY[0] == finalboss.position[0] || playerXY[0] == finalboss.position[1] || playerXY[0] == finalboss.position[2])
-                                            && playerXY[1] - 1 == finalboss.position[5]))
-                                            {
-                                                playerXY[1] -= 1;
-                                            }
-                                            else
-                                            {
-                                                Fight();
-                                            }
-                                            if (stepCount == 5)
-                                            {
-                                                if (player.HP + Convert.ToInt32(player.maxHP * 0.05f) > player.maxHP)
-                                                {
-                                                    player.HP = player.maxHP;
-                                                    stepCount = 0;
-                                                }
-                                                else
-                                                {
-                                                    player.HP += Convert.ToInt32(player.maxHP * 0.05f);
-                                                    stepCount = 0;
-                                                }
-                                            }
-                                            flag1 = true; // set when changing value
-                                            finalBossSteps++;
-                                            finalboss.Advance(playerXY, ref finalBossSteps);
-                                        }
-                                    }
-                                    else
+                                    playerPosition.Y -= 80;
+                                    flag1 = true; // set when changing value
+                                    int barack = 0;
+                                    if (barack == 0)
                                     {
-                                        if (enemyList.Exists(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] - 1))
-                                        {
-                                            goblinFightId = enemyList.FindIndex(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] - 1);
-                                            Fight(enemyList.ElementAt(goblinFightId));
-                                            flag1 = true; // set when changing value
-                                        }
-                                        if (boss.position[0] == playerXY[0] && boss.position[1] == playerXY[1] - 1)
-                                        {
-                                            Fight(boss);
-                                            flag1 = true; // set when changing value
-
-                                        }
+                                        soundEffects[0].Play(0.1f, 0, 0);
+                                        barack++;
+                                    }
+                                }
+                                else
+                                {
+                                    if (enemyList.Exists(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] - 1))
+                                    {
+                                        goblinFightId = enemyList.FindIndex(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] - 1);
+                                        Fight(enemyList, enemyList.ElementAt(goblinFightId));
+                                        flag1 = true; // set when changing value
                                     }
                                 }
                             }
-                            if (time1 > 200f)
-                            {
-                                flag1 = false;
-                                time1 = 0f;
-                            }
-                            surroundFlag = true;
                         }
-                        else
+                        if (time1 > 200f)
                         {
-                            flag1 = false; // reset when button is not down
+                            flag1 = false;
                             time1 = 0f;
                         }
-                        #endregion
+                    }
+                    else
+                    {
+                        flag1 = false; // reset when button is not down
+                        time1 = 0f;
+                    }
+                    #endregion
 
-                        #region A KEY
-                        if (kstate.IsKeyDown(Keys.A) || kstate.IsKeyDown(Keys.Left))
+                    #region A KEY
+                    if (kstate.IsKeyDown(Keys.A) || kstate.IsKeyDown(Keys.Left))
+                    {
+                        time2 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                        if (!flag2)
                         {
-                            time2 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                            if (!flag2)
+                            //FALAK
+                            if (levelGrid[Convert.ToInt32((playerPosition.X - 80) / 80) - 1,
+                            Convert.ToInt32(playerPosition.Y / 80) - 1] != 1) // COLLISION
                             {
-                                //FALAK
-                                if (levelGrid[playerXY[0] - 1, playerXY[1]] != 1) // COLLISION
+                                //GOBLIN    
+                                if (!enemyList.Exists(xy => xy.position[0] == playerXY[0] - 1 && xy.position[1] == playerXY[1]) 
+                                    && !(boss.position[0] == playerXY[0] - 1 && boss.position[1] == playerXY[1]))
                                 {
-                                    //GOBLIN    
-                                    if (!enemyList.Exists(xy => xy.position[0] == playerXY[0] - 1 && xy.position[1] == playerXY[1])
-                                        && !(boss.position[0] == playerXY[0] - 1 && boss.position[1] == playerXY[1]))
+                                    playerPosition.X -= 80;
+                                    flag2 = true; // set when changing value
+                                    int barack = 0;
+                                    if (barack == 0)
                                     {
-                                        if (finalboss == null)
-                                        {
-                                            stepCount++;
-                                            if (stepCount == 5 && enemyList.Count > 2)
-                                            {
-                                                if (player.HP + Convert.ToInt32(player.maxHP * 0.05f) > player.maxHP)
-                                                {
-                                                    player.HP = player.maxHP;
-                                                    stepCount = 0;
-                                                }
-                                                else
-                                                {
-                                                    player.HP += Convert.ToInt32(player.maxHP * 0.05f);
-                                                    stepCount = 0;
-                                                }
-                                            }
-                                            playerXY[0] -= 1;
-                                            flag2 = true; // set when changing value
-                                            if (step)
-                                            {
-                                                foreach (var item in enemyList)
-                                                {
-                                                    item.Advance(playerXY, levelGrid, enemyList, item, boss);
-                                                }
-                                                step = false;
-                                            }
-                                            else
-                                            {
-                                                step = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (!((playerXY[1] == finalboss.position[3] || playerXY[1] == finalboss.position[4] || playerXY[1] == finalboss.position[5])
-                                                && playerXY[0] - 1 == finalboss.position[2]))
-                                            {
-                                                playerXY[0] -= 1;
-                                            }
-                                            else
-                                            {
-                                                Fight();
-                                            }
-                                            if (stepCount == 5)
-                                            {
-                                                if (player.HP + Convert.ToInt32(player.maxHP * 0.05f) > player.maxHP)
-                                                {
-                                                    player.HP = player.maxHP;
-                                                    stepCount = 0;
-                                                }
-                                                else
-                                                {
-                                                    player.HP += Convert.ToInt32(player.maxHP * 0.05f);
-                                                    stepCount = 0;
-                                                }
-                                            }
-                                            flag2 = true;
-                                            finalBossSteps++;
-                                            finalboss.Advance(playerXY, ref finalBossSteps);
-                                        }
+                                        soundEffects[0].Play(0.1f, 0, 0);
+                                        barack++;
                                     }
-                                    else
+                                }
+                                else
+                                {
+                                    if (enemyList.Exists(xy => xy.position[0] == playerXY[0] - 1 && xy.position[1] == playerXY[1]))
                                     {
-                                        if (enemyList.Exists(xy => xy.position[0] == playerXY[0] - 1 && xy.position[1] == playerXY[1]))
-                                        {
-                                            goblinFightId = enemyList.FindIndex(xy => xy.position[0] == playerXY[0] - 1 && xy.position[1] == playerXY[1]);
-                                            Fight(enemyList.ElementAt(goblinFightId));
-                                            flag2 = true; // set when changing value
-                                        }
-                                        if (boss.position[0] == playerXY[0] - 1 && boss.position[1] == playerXY[1])
-                                        {
-                                            Fight(boss);
-                                            flag2 = true; // set when changing value
-                                        }
+                                        goblinFightId = enemyList.FindIndex(xy => xy.position[0] == playerXY[0] - 1 && xy.position[1] == playerXY[1]);
+                                        Fight(enemyList, enemyList.ElementAt(goblinFightId));
+                                        flag2 = true; // set when changing value
                                     }
                                 }
                             }
-                            if (time2 > 200f)
-                            {
-                                flag2 = false;
-                                time2 = 0f;
-                            }
-                            surroundFlag = true;
                         }
-                        else
+                        if (time2 > 200f)
                         {
-                            flag2 = false; // reset when button is not down
+                            flag2 = false;
                             time2 = 0f;
                         }
-                        #endregion
+                    }
+                    else
+                    {
+                        flag2 = false; // reset when button is not down
+                        time2 = 0f;
+                    }
+                    #endregion
 
-                        #region S KEY
-                        if (kstate.IsKeyDown(Keys.S) || kstate.IsKeyDown(Keys.Down))
+                    #region S KEY
+                    if (kstate.IsKeyDown(Keys.S) || kstate.IsKeyDown(Keys.Down))
+                    {
+                        time3 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                        if (!flag3)
                         {
-                            time3 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                            if (!flag3)
+                            if (levelGrid[Convert.ToInt32(playerPosition.X / 80) - 1,
+                            Convert.ToInt32((playerPosition.Y + 80) / 80) - 1] != 1)
                             {
-                                if (levelGrid[playerXY[0], playerXY[1] + 1] != 1)
+                                //GOBLIN
+                                if (!enemyList.Exists(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] + 1)
+                                    && !(boss.position[0] == playerXY[0] && boss.position[1] == playerXY[1] + 1))
                                 {
-                                    //GOBLIN
-                                    if (!enemyList.Exists(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] + 1)
-                                        && !(boss.position[0] == playerXY[0] && boss.position[1] == playerXY[1] + 1))
+                                    playerPosition.Y += 80;
+                                    flag3 = true; // set when changing value
+                                    int barack = 0;
+                                    if (barack == 0)
                                     {
-                                        if (finalboss == null)
-                                        {
-                                            stepCount++;
-                                            if (stepCount == 5 && enemyList.Count > 2)
-                                            {
-                                                if (player.HP + Convert.ToInt32(player.maxHP * 0.05f) > player.maxHP)
-                                                {
-                                                    player.HP = player.maxHP;
-                                                    stepCount = 0;
-                                                }
-                                                else
-                                                {
-                                                    player.HP += Convert.ToInt32(player.maxHP * 0.05f);
-                                                    stepCount = 0;
-                                                }
-                                            }
-                                            playerXY[1] += 1;
-                                            flag3 = true; // set when changing value
-                                            if (step)
-                                            {
-                                                foreach (var item in enemyList)
-                                                {
-                                                    item.Advance(playerXY, levelGrid, enemyList, item, boss);
-                                                }
-                                                step = false;
-                                            }
-                                            else
-                                            {
-                                                step = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if ((playerXY[0] == finalboss.position[0] || playerXY[0] == finalboss.position[1] || playerXY[0] == finalboss.position[2])
-                                            && playerXY[1] + 1 == finalboss.position[3])
-                                            {
-                                                Fight();
-                                            }
-                                            else
-                                            {
-                                                playerXY[1] += 1;
-                                            }
-                                            stepCount++;
-                                            if (stepCount == 5)
-                                            {
-                                                if (player.HP + Convert.ToInt32(player.maxHP * 0.05f) > player.maxHP)
-                                                {
-                                                    player.HP = player.maxHP;
-                                                    stepCount = 0;
-                                                }
-                                                else
-                                                {
-                                                    player.HP += Convert.ToInt32(player.maxHP * 0.05f);
-                                                    stepCount = 0;
-                                                }
-                                            }
-                                            finalBossSteps++;
-                                            finalboss.Advance(playerXY, ref finalBossSteps);
-                                            flag3 = true;
-                                        }                                 
-                                    }
-                                    else
-                                    {
-                                        if (enemyList.Exists(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] + 1))
-                                        {
-                                            goblinFightId = enemyList.FindIndex(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] + 1);
-                                            Fight(enemyList.ElementAt(goblinFightId));
-                                            flag3 = true; // set when changing value
-                                        }
-                                        if (boss.position[0] == playerXY[0] && boss.position[1] == playerXY[1] + 1)
-                                        {
-                                            Fight(boss);
-                                            flag3 = true; // set when changing value
-
-                                        }
-
+                                        soundEffects[0].Play(0.1f, 0, 0);
+                                        barack++;
                                     }
                                 }
+                                else
+                                {
+                                    if (enemyList.Exists(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] + 1))
+                                    {
+                                        goblinFightId = enemyList.FindIndex(xy => xy.position[0] == playerXY[0] && xy.position[1] == playerXY[1] + 1);
+                                        Fight(enemyList, enemyList.ElementAt(goblinFightId));
+                                        flag3 = true; // set when changing value
+                                    }
+                                }
+
                             }
-                            if (time3 > 200f)
-                            {
-                                flag3 = false;
-                                time3 = 0f;
-                            }
-                            surroundFlag = true;
                         }
-                        else
+                        if (time3 > 200f)
                         {
-                            flag3 = false; // reset when button is not down
+                            flag3 = false;
                             time3 = 0f;
                         }
-                        #endregion
+                    }
+                    else
+                    {
+                        flag3 = false; // reset when button is not down
+                        time3 = 0f;
+                    }
+                    #endregion
 
-                        #region D KEY
+                    #region D KEY
 
-                        if (kstate.IsKeyDown(Keys.D) || kstate.IsKeyDown(Keys.Right))
+                    if (kstate.IsKeyDown(Keys.D) || kstate.IsKeyDown(Keys.Right))
+                    {
+                        time4 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                        if (!flag4)
                         {
-                            time4 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                            if (!flag4)
+                            if (levelGrid[Convert.ToInt32((playerPosition.X + 80) / 80) - 1,
+                            Convert.ToInt32(playerPosition.Y / 80) - 1] != 1)
                             {
-                                if (levelGrid[playerXY[0] + 1, playerXY[1]] != 1)
+                                //GOBLIN
+                                if (!enemyList.Exists(xy => xy.position[0] == playerXY[0] + 1 && xy.position[1] == playerXY[1])
+                                    && !(boss.position[0] == playerXY[0] + 1 && boss.position[1] == playerXY[1]))
                                 {
-                                    //GOBLIN
-                                    if (!enemyList.Exists(xy => xy.position[0] == playerXY[0] + 1 && xy.position[1] == playerXY[1])
-                                        && !(boss.position[0] == playerXY[0] + 1 && boss.position[1] == playerXY[1]))
+                                    playerPosition.X += 80;
+                                    flag4 = true; // set when changing value
+                                    int barack = 0;
+                                    if (barack == 0)
                                     {
-                                        if (finalboss == null)
-                                        {
-                                            stepCount++;
-                                            if (stepCount == 5 && enemyList.Count > 2)
-                                            {
-                                                if (player.HP + Convert.ToInt32(player.maxHP * 0.05f) > player.maxHP)
-                                                {
-                                                    player.HP = player.maxHP;
-                                                    stepCount = 0;
-                                                }
-                                                else
-                                                {
-                                                    player.HP += Convert.ToInt32(player.maxHP * 0.05f);
-                                                    stepCount = 0;
-                                                }
-                                            }
-                                            playerXY[0] += 1;
-                                            flag4 = true;
-                                            if (step)
-                                            {
-                                                foreach (var item in enemyList)
-                                                {
-                                                    item.Advance(playerXY, levelGrid, enemyList, item, boss);
-                                                }
-                                                step = false;
-                                            }
-                                            else
-                                            {
-                                                step = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if(!((playerXY[1] == finalboss.position[3] || playerXY[1] == finalboss.position[4] || playerXY[1] == finalboss.position[5])
-                                            && playerXY[0] + 1 == finalboss.position[0]))
-                                            {
-                                                playerXY[0] += 1;
-                                            }
-                                            else
-                                            {
-                                                Fight();
-                                            }
-                                            stepCount++;
-                                            if (stepCount == 5)
-                                            {
-                                                if (player.HP + Convert.ToInt32(player.maxHP * 0.05f) > player.maxHP)
-                                                {
-                                                    player.HP = player.maxHP;
-                                                    stepCount = 0;
-                                                }
-                                                else
-                                                {
-                                                    player.HP += Convert.ToInt32(player.maxHP * 0.05f);
-                                                    stepCount = 0;
-                                                }
-                                            }
-                                            finalBossSteps++;
-                                            finalboss.Advance(playerXY, ref finalBossSteps);
-                                            flag4 = true; // set when changing value
-                                        }
+                                        soundEffects[0].Play(0.1f, 0, 0);
+                                        barack++;
                                     }
-                                    else
+                                }
+                                else
+                                {
+                                    if (enemyList.Exists(xy => xy.position[0] == playerXY[0] + 1 && xy.position[1] == playerXY[1]))
                                     {
-                                        if (enemyList.Exists(xy => xy.position[0] == playerXY[0] + 1 && xy.position[1] == playerXY[1]))
-                                        {
-                                            goblinFightId = enemyList.FindIndex(xy => xy.position[0] == playerXY[0] + 1 && xy.position[1] == playerXY[1]);
-                                            Fight(enemyList.ElementAt(goblinFightId));
-                                            flag4 = true; // set when changing value
-                                        }
-                                        if (boss.position[0] == playerXY[0] + 1 && boss.position[1] == playerXY[1])
-                                        {
-                                            Fight(boss);
-                                            flag4 = true; // set when changing value
-
-                                        }
+                                        goblinFightId = enemyList.FindIndex(xy => xy.position[0] == playerXY[0] + 1 && xy.position[1] == playerXY[1]);
+                                        Fight(enemyList, enemyList.ElementAt(goblinFightId));
+                                        flag4 = true; // set when changing value
                                     }
                                 }
                             }
-                            if (time4 > 200f)
-                            {
-                                flag4 = false;
-                                time4 = 0f;
-                            }
-                            surroundFlag = true;
                         }
-                        else
+                        if (time4 > 200f)
                         {
-                            flag4 = false; // reset when button is not down
+                            flag4 = false;
                             time4 = 0f;
                         }
-                        #endregion
-                        #endregion
-                        surroundingBoss = Surrounding(boss, playerXY);
-                        surroundingEnemies = Surrounding(enemyList, playerXY);
                     }
-
-
-
+                    else
+                    {
+                        flag4 = false; // reset when button is not down
+                        time4 = 0f;
+                    }
+                    #endregion
+                    #endregion
 
                     if (playerXY[0] == potionXY[0] && playerXY[1] == potionXY[1])
-                        {
-                            potionFlag = false;
-                            potionXY[0] = 0;
-                            potionXY[1] = 0;
-                            Heal(player);
-                        }
-
-                        //if (Keyboard.GetState().IsKeyDown(Keys.S))
-                        //    soundEffects[0].CreateInstance().Play();
-                        //if (Keyboard.GetState().IsKeyDown(Keys.A))
-                        //    soundEffects[0].CreateInstance().Play();
-                        //if (Keyboard.GetState().IsKeyDown(Keys.D))
-                        //    soundEffects[0].CreateInstance().Play();
-
-                    //if (Keyboard.GetState().IsKeyDown(Keys.Space))
-                    //{
-                    //    if (SoundEffect.MasterVolume == 0.0f)
-                    //        SoundEffect.MasterVolume = 1.0f;
-                    //    else
-                    //        SoundEffect.MasterVolume = 0.0f;
-                    //}
+                    {
+                        potionFlag = false;
+                        potionXY[0] = 0;
+                        potionXY[1] = 0;
+                        Heal(player);
+                    }
                     base.Update(gameTime);
                 }
             }
         }
-
-        public float time5 = 0f;
-        public float rotaation = 0f;
-
+        public int narancs = 0;
+        public int mandarin = 0;
+        public int citrom = 0;
         protected override void Draw(GameTime gameTime)
         {
             _graphics.GraphicsDevice.Clear(Color.Black);
@@ -788,7 +512,7 @@ namespace monoGame_Project
                 new Vector2(_graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2),
                 Vector2.One,
                 SpriteEffects.None,
-                0f
+                1f
                 );
                 _spriteBatch.End();
                 #endregion
@@ -830,51 +554,24 @@ namespace monoGame_Project
                         _spriteBatch.End();
                     }
                 }
-                #endregion
+                #endregion 
 
-                #region PLAYER
+                // PLAYER
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(
+                player.CharacterTexture,
+                playerPosition,
+                null,
+                Color.White,
+                0f,
+                new Vector2(_graphics.PreferredBackBufferWidth / 12, _graphics.PreferredBackBufferHeight / 12),
+                Vector2.One,
+                SpriteEffects.None,
+                0.1f
+                );
+                _spriteBatch.End();
 
-                if ((playerXY[0] == doorXY[0] && playerXY[1] == doorXY[1] && conditionsMet))
-                {
-                    if (time5 < 1000)
-                    {
-                        time5 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                        rotaation += 0.3f;
-                        _spriteBatch.Begin();
-                        _spriteBatch.Draw(
-                        player.CharacterTexture,
-                        new Vector2(_graphics.PreferredBackBufferWidth / 12 * playerXY[0] - player.CharacterTexture.Width / 2, _graphics.PreferredBackBufferWidth / 12 * playerXY[1] - player.CharacterTexture.Height / 2),
-                        null,
-                        Color.White,
-                        rotaation,
-                        new Vector2(player.CharacterTexture.Width / 2, player.CharacterTexture.Height / 2),
-                        new Vector2(1 - rotaation / 10, 1 - rotaation / 10),
-                        SpriteEffects.None,
-                        0.1f
-                        );
-                        _spriteBatch.End();
-                    }
-                }
-                else
-                {
-                    _spriteBatch.Begin();
-                    _spriteBatch.Draw(
-                    player.CharacterTexture,
-                    new Vector2(_graphics.PreferredBackBufferWidth / 12 * playerXY[0] - player.CharacterTexture.Width / 2, _graphics.PreferredBackBufferWidth / 12 * playerXY[1] - player.CharacterTexture.Height / 2),
-                    null,
-                    Color.White,
-                    0f,
-                    new Vector2(player.CharacterTexture.Width / 2, player.CharacterTexture.Height / 2),
-                    Vector2.One,
-                    SpriteEffects.None,
-                    0.1f
-                    );
-                    _spriteBatch.End();
-                    time5 = 0;
-                    rotaation = 0;
-                }
 
-                #endregion
 
                 #region GRID GENERÁLÁS PER PÁLYA
                 if (generateTerrain)
@@ -882,46 +579,41 @@ namespace monoGame_Project
                     level++;
                     enemyList.Clear();
                     // HA GENERÁL AKKOR TÖRLI AZ EGÉSZET
-                    for (int i = 1; i < levelGrid.GetLength(0); i++)
+                    for (int i = 0; i < levelGrid.GetLength(0) - 1; i++)
                     {
-                        for (int j = 1; j < levelGrid.GetLength(1); j++)
+                        for (int j = 0; j < levelGrid.GetLength(1) - 1; j++)
                         {
                             levelGrid[i, j] = 0;
                         }
 
                     }
                     // ÉS CSINÁL EGY ÚJ GRIDET
-                    for (int i = 1; i < levelGrid.GetLength(0); i++)
+                    for (int i = 0; i < levelGrid.GetLength(0); i++)
                     {
-                        for (int j = 1; j < levelGrid.GetLength(1); j++)
+                        for (int j = 0; j < levelGrid.GetLength(1); j++)
                         {
                             if (level10flag)
                             {
-                                if (i == 1 || i == 12 || ((i < 12 && i > 1) && (j == 1 || j == 12)))
+                                if (i + 1 == 1 || i + 1 == 12 || ((i + 1 < 12 && i + 1 > 1) && (j + 1 == 1 || j + 1 == 12)))
                                 {
                                     levelGrid[i, j] = 1;
                                 }
                             }
                             else
                             {
-                                if (i == 1 || i == 12 || ((i < 12 && i > 1) && (j == 1 || j == 12)))
+                                if (i + 1 == 1 || i + 1 == 12 || ((i + 1 < 12 && i + 1 > 1) && (j + 1 == 1 || j + 1 == 12)))
                                 {
                                     levelGrid[i, j] = 1;
 
                                 }
-                                if (levelGrid.GetLength(0) > i && levelGrid.GetLength(1) > j && i > 1 && j > 1)
+                                if (levelGrid.GetLength(0) - 2 > i && levelGrid.GetLength(1) - 2 > j && i > 1 && j > 1)
                                 {
-                                    if (i != 12 && j != 12)
+                                    if (rnd.Next(1, 101) > 30 // RANDOM SZÁZALÉK ESÉLY / BLOKK
+                                        && levelGrid[i - 1, j - 1] != 1 && levelGrid[i - 1, j + 1] != 1 &&
+                                        levelGrid[i + 1, j - 1] != 1 && levelGrid[i + 1, j + 1] != 1)       //CSÜCSÖKCSEKK
                                     {
-                                        if (rnd.Next(1, 101) > 30 // RANDOM SZÁZALÉK ESÉLY / BLOKK
-                                           && (levelGrid[i - 1, j - 1] != 1 && levelGrid[i - 1, j + 1] != 1 &&
-                                           levelGrid[i + 1, j - 1] != 1 && levelGrid[i + 1, j + 1] != 1) &&        //CSÜCSÖKCSEKK
-                                            !(i == 2 || i == 11 || ((i < 11 && i > 2) && (j == 2 || j == 11))))
-                                        {
-                                            levelGrid[i, j] = 1;
-                                        }
+                                        levelGrid[i, j] = 1;
                                     }
-
                                 }
                             }
 
@@ -932,14 +624,14 @@ namespace monoGame_Project
                     {
                         while (generateTerrain)
                         {
-                            for (int i = 1; i < levelGrid.GetLength(0); i++)
+                            for (int i = 0; i < levelGrid.GetLength(0); i++)
                             {
-                                for (int j = 1; j < levelGrid.GetLength(1); j++)
+                                for (int j = 0; j < levelGrid.GetLength(1); j++)
                                 {
                                     if (levelGrid[i, j] != 1 && rnd.Next(1, 101) > 95 && (i != 1 && j != 1))
                                     {
-                                        doorXY[0] = i;
-                                        doorXY[1] = j;
+                                        doorXY[0] = i + 1;
+                                        doorXY[1] = j + 1;
                                         generateTerrain = false;
                                         temprnd = rnd.Next(3, 7);
                                         break;
@@ -958,13 +650,13 @@ namespace monoGame_Project
                                 while (!enemyspawn)
                                 {
 
-                                    for (int i = 1; i < levelGrid.GetLength(0) - 1; i++)
+                                    for (int i = 0; i < levelGrid.GetLength(0); i++)
                                     {
-                                        for (int j = 1; j < levelGrid.GetLength(1) - 1; j++)
+                                        for (int j = 0; j < levelGrid.GetLength(1); j++)
                                         {
-                                            if (rnd.Next(1, 101) > 95 && (i != 2 && j != 2) && levelGrid[i, j] != 1 && (doorXY[0] != i && doorXY[1] != j) && !enemyList.Exists(xy => xy.position[0] == i && xy.position[1] == j))
+                                            if (rnd.Next(1, 101) > 95 && (i != 1 && j != 1) && levelGrid[i, j] != 1 && (doorXY[0] != i + 1 && doorXY[1] != j + 1) && !enemyList.Exists(xy => xy.position[0] == i + 1 && xy.position[1] == j + 1))
                                             {
-                                                enemyList.Add(new Enemy(goblin, level, i, j));
+                                                enemyList.Add(new Enemy(goblin, new Vector2(0, 0), level, i + 1, j + 1));
                                                 enemyspawn = true;
                                                 break;
 
@@ -986,14 +678,14 @@ namespace monoGame_Project
                             while (!potionspawn)
                             {
 
-                                for (int i = 1; i < levelGrid.GetLength(0); i++)
+                                for (int i = 0; i < levelGrid.GetLength(0); i++)
                                 {
-                                    for (int j = 1; j < levelGrid.GetLength(1); j++)
+                                    for (int j = 0; j < levelGrid.GetLength(1); j++)
                                     {
-                                        if (rnd.Next(1, 101) > 95 && (i != 1 && j != 1) && levelGrid[i, j] != 1 && (doorXY[0] != i && doorXY[1] != j) && !enemyList.Exists(xy => xy.position[0] == i && xy.position[1] == j) && !(i == 2 && j == 2))
+                                        if (rnd.Next(1, 101) > 95 && (i != 1 && j != 1) && levelGrid[i, j] != 1 && (doorXY[0] != i + 1 && doorXY[1] != j + 1) && !enemyList.Exists(xy => xy.position[0] == i + 1 && xy.position[1] == j + 1))
                                         {
-                                            potionXY[0] = i;
-                                            potionXY[1] = j;
+                                            potionXY[0] = i + 1;
+                                            potionXY[1] = j + 1;
                                             potionspawn = true;
                                             potionFlag = true;
                                             break;
@@ -1006,22 +698,22 @@ namespace monoGame_Project
 
                             }
                             bool bossSpawn = false;
-
                             while (!bossSpawn)
                             {
 
-                                for (int i = 1; i < levelGrid.GetLength(0); i++)
+                                for (int i = 0; i < levelGrid.GetLength(0); i++)
                                 {
-                                    for (int j = 1; j < levelGrid.GetLength(1); j++)
+                                    for (int j = 0; j < levelGrid.GetLength(1); j++)
                                     {
-                                        if (rnd.Next(1, 101) > 95 && (i != 1 && j != 1) && levelGrid[i, j] != 1 && (doorXY[0] != i && doorXY[1] != j) && !enemyList.Exists(xy => xy.position[0] == i && xy.position[1] == j) && (potionXY[0] != i && potionXY[1] != j))
+                                        if (rnd.Next(1, 101) > 95 && (i != 1 && j != 1) && levelGrid[i, j] != 1 && (doorXY[0] != i + 1 && doorXY[1] != j + 1) && !enemyList.Exists(xy => xy.position[0] == i + 1 && xy.position[1] == j + 1) && (potionXY[0] != i + i && potionXY[1] != j + 1))
                                         {
-                                            boss = new Boss(bossTexture, level, i, j);
-                                            boss.position[0] = i;
-                                            boss.position[1] = j;
+                                            boss = new Boss(bossTexture, level, i + 1, j + 1);
+                                            boss.position[0] = i + 1;
+                                            boss.position[1] = j + 1;
                                             bossSpawn = true;
-                                            bossFlag2 = true;
+                                            bossFlag = true;
                                             break;
+
                                         }
                                     }
                                     if (bossSpawn)
@@ -1034,24 +726,23 @@ namespace monoGame_Project
                             keyAdd(enemyList);
                     }
                 }
+            #endregion
 
-                #endregion
-
-                #region GOBLIN GENERÁLÁS
-                foreach (var item in enemyList)
-                {
-                    _spriteBatch.Begin();
-                    _spriteBatch.Draw(
-                    goblin,
-                    new Vector2(_graphics.PreferredBackBufferWidth / 12f * item.position[0] - item.CharacterTexture.Width / 2, _graphics.PreferredBackBufferHeight / 12f * item.position[1] - item.CharacterTexture.Height / 2),
-                    null,
-                    Color.White,
-                    0f,
-                    new Vector2(obstacleTexture.Width / 2, obstacleTexture.Height / 2),
-                    Vector2.One,
-                    SpriteEffects.None,
-                    0f);
-                    _spriteBatch.End();
+            #region GOBLIN GENERÁLÁS
+            foreach (var item in enemyList)
+            {
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(
+                goblin,
+                new Vector2(_graphics.PreferredBackBufferWidth / 12f * item.position[0] - item.CharacterTexture.Width / 2, _graphics.PreferredBackBufferHeight / 12f * item.position[1] - item.CharacterTexture.Height / 2),
+                null,
+                Color.White,
+                0f,
+                new Vector2(obstacleTexture.Width / 2, obstacleTexture.Height / 2),
+                Vector2.One,
+                SpriteEffects.None,
+                0f);
+                _spriteBatch.End();
                     _spriteBatch.Begin();
                     _spriteBatch.DrawString(
                     Lv,
@@ -1059,8 +750,8 @@ namespace monoGame_Project
                     new Vector2(_graphics.PreferredBackBufferWidth / 12f * item.position[0] - 30 - item.CharacterTexture.Width / 2, _graphics.PreferredBackBufferHeight / 12f * item.position[1] - 40 - item.CharacterTexture.Height / 2),
                     Color.White);
                     _spriteBatch.End();
-                }
-                if (bossFlag2)
+            }
+                if (bossFlag)
                 {
                     _spriteBatch.Begin();
                     _spriteBatch.Draw(
@@ -1075,34 +766,33 @@ namespace monoGame_Project
                     0f);
                     _spriteBatch.End();
                 }
-
                 #endregion
 
                 #region PÁLYA VETITÉSE
                 // A GRIDET KIVETITI FOLYAMATOSAN
-                for (int i = 1; i < levelGrid.GetLength(0); i++)
+                for (int i = 0; i < levelGrid.GetLength(0); i++)
+            {
+                for (int j = 0; j < levelGrid.GetLength(1); j++)
                 {
-                    for (int j = 1; j < levelGrid.GetLength(1); j++)
+                    if (levelGrid[i, j] == 1)
                     {
-                        if (levelGrid[i, j] == 1)
-                        {
-                            _spriteBatch.Begin();
-                            _spriteBatch.Draw(
-                            obstacleTexture,
-                            new Vector2(_graphics.PreferredBackBufferWidth / 12f * i - obstacleTexture.Width / 2, _graphics.PreferredBackBufferHeight / 12f * j - obstacleTexture.Height / 2),
-                            null,
-                            Color.White,
-                            0f,
-                            new Vector2(obstacleTexture.Width / 2, obstacleTexture.Height / 2),
-                            Vector2.One,
-                            SpriteEffects.None,
-                            0.1f
-                        );
-                            _spriteBatch.End();
-                        }
+                        _spriteBatch.Begin();
+                        _spriteBatch.Draw(
+                        obstacleTexture,
+                        new Vector2(_graphics.PreferredBackBufferWidth / 12f * (i + 1) - obstacleTexture.Width / 2, _graphics.PreferredBackBufferHeight / 12f * (j + 1) - obstacleTexture.Height / 2),
+                        null,
+                        Color.White,
+                        0f,
+                        new Vector2(obstacleTexture.Width / 2, obstacleTexture.Height / 2),
+                        Vector2.One,
+                        SpriteEffects.None,
+                        0.1f
+                    );
+                        _spriteBatch.End();
                     }
                 }
-                #endregion
+            }
+            #endregion
 
                 if (potionFlag)
                 {
@@ -1137,8 +827,8 @@ namespace monoGame_Project
                         );
                     _spriteBatch.End();
                 }
+                string stattext = "             HP: " + player.HP.ToString() + "                    Armor: " + player.shield.ToString() + "                      Level: " + player.level.ToString();
 
-                #region MINECRAFT SIGN
                 _spriteBatch.Begin();
                 _spriteBatch.Draw(
                     stat_screen,
@@ -1149,117 +839,16 @@ namespace monoGame_Project
                     new Vector2(stat_screen.Width / 2, stat_screen.Height / 2),
                     Vector2.One,
                     SpriteEffects.None,
-                0.7f
+                    0.7f
                     );
-                _spriteBatch.End();
-                _spriteBatch.Begin();
-                _spriteBatch.Draw(
-                    stat_screen,
-                    new Vector2(480, 920),
-                    null,
-                    Color.White,
-                    0f,
-                    new Vector2(stat_screen.Width / 2, stat_screen.Height / 2),
-                    Vector2.One,
-                    SpriteEffects.None,
-                0.7f
-                    );
-                _spriteBatch.End();
-                #endregion
-
-                #region STATS
-                //PLAYER STATS
-                _spriteBatch.Begin();
-                _spriteBatch.DrawString(statFont, $"HP:{player.HP} / {player.maxHP}", new Vector2(60, 20), Color.Black);
-                _spriteBatch.DrawString(statFont, $"Armor:{player.shield}", new Vector2(240, 20), Color.Black);
-                _spriteBatch.DrawString(statFont, $"Level:{player.level}", new Vector2(450, 20), Color.Black);
-                _spriteBatch.DrawString(statFont, $"Damage:{player.damage}", new Vector2(630, 20), Color.Black);
+                _spriteBatch.DrawString(
+                    statfont,
+                    stattext,
+                    new Vector2(0, 20),
+                    Color.Black);
                 _spriteBatch.End();
 
 
-                //GOBLIN STATS
-                string surroundingA = "";
-                string surroundingJ = "";
-                string surroundingB = "";
-                string surroundingF = "";
-
-
-                if (surroundingBoss != null)
-                {
-                    if (surroundingBoss.around == "Alattad:")
-                    {
-                        surroundingA = $"HP:{surroundingBoss.HP}  SH:{surroundingBoss.shield}  PW:{surroundingBoss.damage}";
-                    }
-                    if (surroundingBoss.around == "Jobbra:")
-                    {
-                        surroundingJ = $"HP:{surroundingBoss.HP}  SH:{surroundingBoss.shield}  PW:{surroundingBoss.damage}";
-                    }
-                    if (surroundingBoss.around == "Balra:")
-                    {
-                        surroundingB = $"HP:{surroundingBoss.HP}  SH:{surroundingBoss.shield}  PW:{surroundingBoss.damage}";
-                    }
-                    if (surroundingBoss.around == "Feletted:")
-                    {
-                        surroundingF = $"HP:{surroundingBoss.HP}  SH:{surroundingBoss.shield}  PW:{surroundingBoss.damage}";
-                    }
-                    _spriteBatch.Begin();
-                    if (surroundingA != "")
-                        _spriteBatch.DrawString(GoblinStat, "(Boss)", new Vector2(75, 905), Color.Black);
-                    if (surroundingJ != "")
-                        _spriteBatch.DrawString(GoblinStat, "(Boss)", new Vector2(318, 905), Color.Black);
-                    if (surroundingB != "")
-                        _spriteBatch.DrawString(GoblinStat, "(Boss)", new Vector2(560, 905), Color.Black);
-                    if (surroundingF != "")
-                        _spriteBatch.DrawString(GoblinStat, "(Boss)", new Vector2(795, 905), Color.Black);
-                    _spriteBatch.End();
-                }
-
-
-
-                if (surroundingEnemies != null)
-                {
-                    foreach (var item in surroundingEnemies)
-                    {
-                        if (item.around == "Alattad:")
-                        {
-                            surroundingA = $"HP:{item.HP}  SH:{item.shield}  PW:{item.damage}";
-                        }
-                        if (item.around == "Jobbra:")
-                        {
-                            surroundingJ = $"HP:{item.HP}  SH:{item.shield}  PW:{item.damage}";
-                        }
-                        if (item.around == "Balra:")
-                        {
-                            surroundingB = $"HP:{item.HP}  SH:{item.shield}  PW:{item.damage}";
-                        }
-                        if (item.around == "Feletted:")
-                        {
-                            surroundingF = $"HP:{item.HP}  SH:{item.shield}  PW:{item.damage}";
-                        }
-                    }
-                }
-
-
-
-
-
-                _spriteBatch.Begin();
-
-
-
-                _spriteBatch.DrawString(GoblinStat, surroundingA, new Vector2(10, 928), Color.Black);
-                _spriteBatch.DrawString(GoblinStat, surroundingJ, new Vector2(255, 928), Color.Black);
-                _spriteBatch.DrawString(GoblinStat, surroundingB, new Vector2(505, 928), Color.Black);
-                _spriteBatch.DrawString(GoblinStat, surroundingF, new Vector2(730, 928), Color.Black);
-                _spriteBatch.DrawString(statFont, "Alattad:", new Vector2(60, 879), Color.Black);
-                _spriteBatch.DrawString(statFont, "Jobbra:", new Vector2(305, 879), Color.Black);
-                _spriteBatch.DrawString(statFont, "Balra:", new Vector2(555, 879), Color.Black);
-                _spriteBatch.DrawString(statFont, "Feletted:", new Vector2(780, 879), Color.Black);
-                _spriteBatch.End();
-                surroundingBossFlage = false;
-                #endregion
-
-                #region DEAD SCREEN
                 if (Dead == true && IsAlive == false)
                 {
                     _spriteBatch.Begin();
@@ -1276,107 +865,58 @@ namespace monoGame_Project
                         );
                     _spriteBatch.End();
                 }
-                #endregion
-
-                #region KEY
-                if (player.Key)
-                {
-                    _spriteBatch.Begin();
-                    _spriteBatch.Draw(
-                        keyTrue,
-                        new Vector2(900, 30),
-                        null,
-                        Color.White,
-                        0f,
-                        new Vector2(keyTrue.Width / 2, keyTrue.Height / 2),
-                        Vector2.One,
-                        SpriteEffects.None,
-                        0.7f
-                        );
-                    _spriteBatch.End();
-                }
-                else
-                {
-                    _spriteBatch.Begin();
-                    _spriteBatch.Draw(
-                        keyFalse,
-                        new Vector2(900, 30),
-                        null,
-                        Color.White,
-                        0f,
-                        new Vector2(keyFalse.Width / 2, keyFalse.Height / 2),
-                        Vector2.One,
-                        SpriteEffects.None,
-                        0.7f
-                        );
-                    _spriteBatch.End();
-                }
-                #endregion
-
-
             }
             base.Draw(gameTime);
         }
-
         public void Heal(Character player)
         {
-            if (player.HP + Convert.ToInt32(player.maxHP * 0.25) > player.maxHP)
+            if (player.HP + player.maxHP / 10 > player.maxHP)
             {
-                player.HP = player.maxHP;
                 return;
             }
             player.HP += Convert.ToInt32(player.maxHP * 0.25);
-
+                player.HP = player.maxHP;
+                if (narancs==0)
+                {
+                    soundEffects[4].Play(1f, 1, 1);
+                    narancs = 1;
+                }
         }
 
-        public void Fight(Enemy currentEnemy)
+        float fightTimer = 0;
+        public void Fight(List<Enemy> enemies, Enemy currentEnemy)
         {
             //do
             // {
-            player.Attack(player.Damage(player), currentEnemy);
-            currentEnemy.Attack(currentEnemy.Damage(currentEnemy), player);
+            player.Attack(player.Damage(player), enemyList[goblinFightId]);
+            enemyList[goblinFightId].Attack(enemyList[goblinFightId].Damage(enemyList[goblinFightId]), player);
+            if (player.shield<=0)
+            {
+                if (citrom==0)
+                {
+                    soundEffects[5].Play();
+                    citrom++;
+                }
+            }
+            if (player.maxHP*0.1>player.HP)
+            {
+                if (mandarin == 0)
+                {
+                    soundEffects[1].Play();
+                    mandarin++;
+                }
+            }
             if (currentEnemy.HP <= 0)
             {
+                soundEffects[2].Play();
                 if (currentEnemy.key == true)
                     player.Key = true;
-                kills++;
-                enemyList.Remove(currentEnemy);
-                player.level++;
-                if (player.level % 2 == 0)
-                    player.levelUp();
-                // break;
-            }
-            // } while (currentEnemy.HP > 0 || player.HP > 0);
-            //}
-        }
 
-        public void Fight(Boss boss)
-        {
-            //do
-            // {
-            player.Attack(player.Damage(player), boss);
-            boss.Attack(boss.Damage(boss), player);
-            if (boss.HP <= 0)
-            {
-                boss.position[1] = 0; boss.position[0] = 0;
-                bossFlag = true;
+                enemies.Remove(currentEnemy);
                 player.level++;
-                if (player.level % 2 == 0)
+                if(player.level % 2 == 0)
                     player.levelUp();
                 // break;
-            }
-            // } while (currentEnemy.HP > 0 || player.HP > 0);
-            //}
-        }
-        public void Fight()
-        {
-            //do
-            // {
-            player.Attack(player.Damage(player), finalboss);
-            finalboss.Attack(player);
-            if (finalboss.HP <= 0)
-            {
-                Credits();
             }
             // } while (currentEnemy.HP > 0 || player.HP > 0);
 
@@ -1390,78 +930,6 @@ namespace monoGame_Project
             keyGoblinId = rnd.Next(1, enemyList.Count);
             enemyList[keyGoblinId].key = true;
             keyFlag = true;
-        }
-
-        List<Enemy> Surrounding(List<Enemy> enemies, int[] playerXY)
-        {
-            List<Enemy> result = new List<Enemy>();
-
-            foreach (var enemy in enemies)
-            {
-                if (enemy.position[0] == playerXY[0] && enemy.position[1] == playerXY[1] - 1)
-                {
-                    enemy.around = "Feletted:";
-                    result.Add(enemy);
-                }
-                if (enemy.position[0] == playerXY[0] - 1 && enemy.position[1] == playerXY[1])
-                {
-                    enemy.around = "Balra:";
-                    result.Add(enemy);
-                }
-                if (enemy.position[0] == playerXY[0] && enemy.position[1] == playerXY[1] + 1)
-                {
-                    enemy.around = "Alattad:";
-                    result.Add(enemy);
-                }
-                if (enemy.position[0] == playerXY[0] + 1 && enemy.position[1] == playerXY[1])
-                {
-                    enemy.around = "Jobbra:";
-                    result.Add(enemy);
-                }
-            }
-            return result;
-        }
-        Boss Surrounding(Boss boss, int[] playerXY)
-        {
-            Boss result = boss;
-            if (boss.position[0] == playerXY[0] && boss.position[1] == playerXY[1] - 1)
-            {
-                boss.around = "Feletted:";
-                return result;
-            }
-            else
-            {
-                boss.around = "";
-            }
-            if (boss.position[0] == playerXY[0] - 1 && boss.position[1] == playerXY[1])
-            {
-                boss.around = "Balra:";
-                return result;
-            }
-            else
-            {
-                boss.around = "";
-
-            }
-            if (boss.position[0] == playerXY[0] && boss.position[1] == playerXY[1] + 1)
-            {
-                boss.around = "Alattad:";
-                return result;
-            }
-            else
-            {
-                boss.around = "";
-            }
-            if (boss.position[0] == playerXY[0] + 1 && boss.position[1] == playerXY[1])
-            {
-                boss.around = "Jobbra:";
-                return result;
-            }
-            else
-            {
-                boss.around = "";
-            }
-            return result;
         }
 
     }
